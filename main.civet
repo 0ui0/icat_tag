@@ -1,0 +1,146 @@
+//@ts-nocheck
+"civet autoLet"
+
+main := document.querySelector "#main"
+
+Tag := class
+  @()
+    @initVnode()
+    @data = {}
+    @render = null
+    @dom = null
+  initVnode()
+    @ ||>
+      .vnode =
+        tagName:"div"
+        attrs:{}
+        params:{}
+        children:[]
+        
+  view(fn)
+    @ ||>
+      .render = => fn(@)
+  param(paramObj)
+    @ ||>
+      .vnode.params = {
+        ...@vnode.params
+        ...param
+      }
+  to(fn)
+    fn(@)
+    @
+  tag(name)
+    @ ||>
+      .vnode.tagName = name
+  attr(attrObj)
+    if attrObj.style
+      throw new Error "please use style replace attr"
+    @ ||>
+      .vnode.attrs = {
+        ...@vnode.attrs
+        ...attrObj
+      }
+    console.log @.vnode.attrs
+    @
+  style(styleObj)
+    @ ||>
+      .vnode.attrs.style = {
+        ...@vnode.attrs.style
+        ...styleObj
+      }
+  child(tag)
+    switch typeof tag
+      "string"
+        @vnode.children.push new Tag().view .text tag
+      else
+        if tag not instanceof Tag
+          console.error tag
+          throw new Error "tag not instance of Tag"
+        @vnode.children.push tag
+    @
+  text(str)
+    @vnode.children = str
+    @
+  children(children)
+    @child child for child of children
+    @
+  draw()
+    switch typeof @vnode.children
+      "string"
+        @dom ?= document.createTextNode ""
+        @dom.data = @vnode.children
+      else
+        @dom ?= document.createElement @vnode.tagName
+
+        if @dom and @dom.tagName.toLowerCase() is not @vnode.tagName
+          parent .= @dom.parentNode
+          parent.removeChild @dom 
+          @dom = document.createElement @vnode.tagName
+          parent.appendChild @dom
+          
+        @dom.innerHTML = ""
+        for own key,attr in @vnode.attrs
+          if key is "style"
+            for own name,value in attr
+              @dom.style[name] = value
+          else
+            @dom[key] = attr
+        @dom.appendChild child.dom for child of @vnode.children
+    @
+  redraw()
+    @initVnode()
+    @render()
+    if typeof @vnode.children is not "string"
+      for child of @vnode.children
+        child.redraw()
+    @draw()
+    @
+  mount(dom)
+    @redraw()
+    dom.innerHTML = ""
+    dom.appendChild @dom
+    @
+
+num .= 0
+textVnode .= null
+buttonVnode .= null
+x1 = 0
+root .= null
+console.log(
+  root = new Tag()
+    .view (i)=>
+      i.tag "div"
+        .style
+          background:"#eee"
+          width:"100px"
+          height:"100px"
+          borderRadius:"10px"
+          cursor:"pointer"
+        .children [
+          new Tag()
+            .view .text("我是一段文本"+num)
+            .to (i)->
+              textVnode = i
+
+          if x1
+            new Tag().view .text "x1"
+          else
+            new Tag().view .text "x2"
+            
+          new Tag()
+            .to (i)->
+              buttonVnode = i
+            .view (i)->
+              i.tag "button"
+              .children "我是一个按钮"+num
+              .attr
+                onclick:->
+                  num++
+                  x1 = not x1
+                  root.redraw()
+                  console.log num
+                  buttonVnode.redraw()
+                  textVnode.redraw()
+        ]
+    .mount main
+)

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="main"></div>
+  <script src="./main.js"></script>
+  <!--
+  <script>
+    let main = document.querySelector("#main")
+    let Tag = class {
+      constructor(){
+        this.children = []
+        this.attrs = {}
+      }
+
+      tag(tagName){
+        this.tagName = tagName
+        return this
+      }
+      attr(key,value){
+        this.attrs[key] = value
+        return this
+      }
+      child(tag){
+        if(tag){
+          if(!(tag instanceof Tag)){
+            throw new Error("tag不是Tag的实例")
+          }
+          this.children.push(tag)
+          
+        }
+        return this
+      }
+      text(text){
+        this.isText = text
+        return this
+      }
+      draw(){
+        if(this.isText){
+          this.dom ??= document.createTextNode("")
+          if(typeof this.isText === "function"){
+            this.dom.data = this.isText()
+          }else{
+            this.dom.data = this.isText
+          }
+          
+        }
+        else{
+          this.dom ??= document.createElement(this.tagName || "div")
+          this.dom.innerHTML = ""
+          for(let key in this.attrs){
+            let attr = this.attrs[key]
+            if(!this.attrs.hasOwnProperty(key)){
+              continue
+            }
+            if(key === "style"){
+              for(let [key,value] of Object.entries(attr)){
+                if(typeof value === "function"){
+                  this.dom.style[key] = value()
+                }
+                else{
+                  this.dom.style[key] = value
+                }
+                
+              }
+            }else{
+              if(typeof attr === "function"){
+                this.dom[key] = attr.bind(this)
+              }else{
+                this.dom[key] = attr
+              }
+              
+            }
+
+          }
+          console.log(this.children)
+          for(let child of this.children){
+            this.dom.appendChild(child.dom)
+          }
+        }
+        return this
+      }
+      mount(dom){
+        dom.innerHTML = ""
+        dom.appendChild(this.dom)
+        return this
+      }
+    }
+
+    let num = 0
+
+    console.log(new Tag()
+      .tag("div")
+      .attr("style",{
+        background:"red",
+        width:"100px",
+        height:"100px"
+      })
+      .child(
+        new Tag()
+          .tag("button")
+          .attr("style",{
+            width:()=>`${100+num}px`
+          })
+          .attr("onclick",function(){
+            num ++
+            console.log(num)
+            this.draw()
+            this.children[0].draw()
+
+          })
+          .child(
+            new Tag()
+              .text(()=>`我是按钮${num}`)
+              .draw()
+          )
+          .draw()
+      )
+      .draw()
+      .mount(main)
+    )
+
+
+  </script>
+  -->
+</body>
+</html>
