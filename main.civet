@@ -1,14 +1,15 @@
 //@ts-nocheck
 "civet autoLet"
 
-main := document.querySelector "#main"
 
 Tag := class
   @()
     @initVnode()
-    @data = {}
     @render = null
     @dom = null
+    @initParams = ->
+    @parent = null
+
   initVnode()
     @ ||>
       .vnode =
@@ -18,20 +19,32 @@ Tag := class
         children:[]
         
   view(fn)
-    @ ||>
-      .render = => fn(@)
-  param(paramObj)
-    @ ||>
-      .vnode.params = {
+    @render = ->
+      @initParams()
+      fn(@)
+    @
+  inject(fn)
+    oldRender = @render
+    @render = ->
+      oldRender.call @
+      fn(@)
+    @
+  param(paramFn)
+    @initParams = ->
+      @vnode.params = {
         ...@vnode.params
-        ...param
+        ...paramFn()
       }
+    @
   to(fn)
     fn(@)
     @
   tag(name)
     @ ||>
       .vnode.tagName = name
+  setParent(tag)
+    @parent = tag
+    @
   attr(attrObj)
     if attrObj.style
       throw new Error "please use style replace attr"
@@ -40,7 +53,6 @@ Tag := class
         ...@vnode.attrs
         ...attrObj
       }
-    console.log @.vnode.attrs
     @
   style(styleObj)
     @ ||>
@@ -48,37 +60,61 @@ Tag := class
         ...@vnode.attrs.style
         ...styleObj
       }
+  clone()
+    clone = new Tag()
+    clone.initParams = @initParams
+    clone.render = @render
+    clone.parent = @parent
+    clone.vnode = JSON.parse JSON.stringify @vnode
+    clone
+
+
   child(tag)
     switch typeof tag
       "string"
-        @vnode.children.push new Tag().view .text tag
+        @vnode.children.push new Tag().view .text(tag).setParent(@)
       else
         if tag not instanceof Tag
           console.error tag
           throw new Error "tag not instance of Tag"
-        @vnode.children.push tag
-    @
+        @vnode.children.push tag.setParent(@)
   text(str)
     @vnode.children = str
     @
   children(children)
-    @child child for child of children
+    if typeof children is "string"
+      @child children
+    else
+      for child of children
+        @child child
     @
   draw()
     switch typeof @vnode.children
       "string"
         @dom ?= document.createTextNode ""
+        if @dom
+          parent = @dom.parentNode
+          if parent
+            parent.removeChild @dom
+            @dom = document.createTextNode ""
+            @dom.parentNode.appendChild @dom
+            
+        if @vnode.attrs.oncreate
+          @vnode.attrs.oncreate @dom
+
         @dom.data = @vnode.children
       else
         @dom ?= document.createElement @vnode.tagName
-
         if @dom and @dom.tagName.toLowerCase() is not @vnode.tagName
-          parent .= @dom.parentNode
-          parent.removeChild @dom 
-          @dom = document.createElement @vnode.tagName
-          parent.appendChild @dom
-          
+          parent = @dom.parentNode
+          if parent
+            parent.removeChild @dom 
+            @dom = document.createElement @vnode.tagName
+            parent.appendChild @dom
         @dom.innerHTML = ""
+        if @vnode.attrs.oncreate
+          @vnode.attrs.oncreate @dom
+        
         for own key,attr in @vnode.attrs
           if key is "style"
             for own name,value in attr
@@ -101,46 +137,11 @@ Tag := class
     dom.appendChild @dom
     @
 
-num .= 0
-textVnode .= null
-buttonVnode .= null
-x1 = 0
-root .= null
-console.log(
-  root = new Tag()
-    .view (i)=>
-      i.tag "div"
-        .style
-          background:"#eee"
-          width:"100px"
-          height:"100px"
-          borderRadius:"10px"
-          cursor:"pointer"
-        .children [
-          new Tag()
-            .view .text("我是一段文本"+num)
-            .to (i)->
-              textVnode = i
+t := -> new Tag()
+t.Tag = Tag
 
-          if x1
-            new Tag().view .text "x1"
-          else
-            new Tag().view .text "x2"
-            
-          new Tag()
-            .to (i)->
-              buttonVnode = i
-            .view (i)->
-              i.tag "button"
-              .children "我是一个按钮"+num
-              .attr
-                onclick:->
-                  num++
-                  x1 = not x1
-                  root.redraw()
-                  console.log num
-                  buttonVnode.redraw()
-                  textVnode.redraw()
-        ]
-    .mount main
-)
+export default t
+export {Tag,t}
+
+
+

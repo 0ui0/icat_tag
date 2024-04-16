@@ -1,16 +1,25 @@
 {
-  "name": "icat_render",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "icat_tag",
+  "version": "1.0.1",
+  "description": "a tool to help create virtual dom.",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "tag",
+    "div",
+    "virtual dom",
+    "vdom",
+    "virtual node",
+    "vnode"
+  ],
+  "author": "Blue_sdo",
   "license": "ISC",
   "dependencies": {
     "chokidar": "^3.6.0",
-    "icat_pipelib": "^2.0.6"
+    "icat_pipelib": "^2.0.6",
+    "icat_tag": "^1.0.0",
+    "vite": "^5.2.9"
   }
 }

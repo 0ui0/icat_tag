@@ -1,0 +1,29 @@
+//@ts-nocheck
+"civet autoLet"
+
+import {t} from "../main"
+main = document.querySelector "#main"
+
+Box = =>
+  t()
+    .view (i)=>
+      i.style
+        margin:"1rem"
+        padding:"1rem"
+        background:"#eee"
+        borderRadius:if i.vnode.params.isRound then "1rem"
+        display:"inline-block"
+      .children "我是一个div"
+
+console.log(
+t()
+  .view (i)=>
+    i.children [
+      Box()
+        .inject (i)=>
+          i.tag "div"
+        .param =>
+          isRound:true
+    ]
+  .mount main
+)
