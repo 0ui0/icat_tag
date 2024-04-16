@@ -16,6 +16,10 @@
   ],
   "author": "Blue_sdo",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0ui0/icat_type.git"
+  },
   "dependencies": {
     "chokidar": "^3.6.0",
     "icat_pipelib": "^2.0.6",
