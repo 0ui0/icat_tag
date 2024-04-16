@@ -30,7 +30,7 @@ t()
     self.children([
       comp1()
       comp1()
-        .to (self)=> vdom = self
+        .to((self)=> vdom = self)
         .inject((self)=>{
           self
             .style({
