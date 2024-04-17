@@ -1,6 +1,6 @@
 {
   "name": "icat_tag",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "a tool to help create virtual dom.",
   "main": "main.js",
   "scripts": {
