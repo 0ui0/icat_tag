@@ -1,6 +1,5 @@
 //@ts-nocheck
 
-
 var hasProp = ({}.constructor).hasOwn;
 const Tag = class {
   constructor() {
