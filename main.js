@@ -6,7 +6,7 @@ import checkType from "icat_checkType"
 const Tag = class {
   constructor() {
     this.initVnode()
-    this.render = null
+    this.render = function() {}
     this.dom = null
     this.initParams = function() {}
     this.parent = null
@@ -55,8 +55,34 @@ const Tag = class {
   }
   tag(name) {
     checkType(arguments,["string"],"Tag.tag(name)")
-    let ref1;return ((ref1 = this).vnode.tagName = name,ref1)
+    this.vnode.tagName = name
+    return this
   }
+  $tag(name) {
+    this.inject((self) => {
+      return self.tag(name)
+    })
+    return this
+  }
+  $attr(attrObj) {
+    this.inject((self) => {
+      return self.attr(attrObj)
+    })
+    return this
+  }
+  $style(styleObj) {
+    this.inject((self) => {
+      return self.style(styleObj)
+    })
+    return this
+  }
+  $children(tagArr) {
+    this.inject((self) => {
+      return self.children(tagArr)
+    })
+    return this
+  }
+
   setParent(tag) {
     checkType(arguments,["object"],"Tag.setParent(tag)")
     this.parent = tag
@@ -67,18 +93,18 @@ const Tag = class {
     if (attrObj.style) {
       throw new Error("please use style replace attr")
     }
-    let ref2;((ref2 = this).vnode.attrs = {
+    let ref1;((ref1 = this).vnode.attrs = {
         ...this.vnode.attrs,
         ...attrObj
-      },ref2)
+      },ref1)
     return this
   }
   style(styleObj) {
     checkType(arguments,["object"],"Tag.style(styleObj)")
-    let ref3;return ((ref3 = this).vnode.attrs.style = {
+    let ref2;return ((ref2 = this).vnode.attrs.style = {
         ...this.vnode.attrs.style,
         ...styleObj
-      },ref3)
+      },ref2)
   }
   clone() {
     let clone = new Tag()
@@ -145,9 +171,9 @@ else  {
         }
         this.dom.innerHTML = ""
         
-        let ref4;for (const key in ref4 = this.vnode.attrs) {
-          if (!hasProp(ref4, key)) continue;
-          const attr = ref4[key];
+        let ref3;for (const key in ref3 = this.vnode.attrs) {
+          if (!hasProp(ref3, key)) continue;
+          const attr = ref3[key];
           if (key === "style") {
             if (typeof (attr) === "string") {
               this.dom.style = attr
@@ -206,8 +232,11 @@ Tag.prototype.样式 = Tag.prototype.style
 Tag.prototype.参数 = Tag.prototype.param
 Tag.prototype.传递 = Tag.prototype.to
 Tag.prototype.标签 = Tag.prototype.tag 
+Tag.prototype.$标签 = Tag.prototype.$tag
 Tag.prototype.属性 = Tag.prototype.attr 
+Tag.prototype.$属性 = Tag.prototype.$attr
 Tag.prototype.子树 = Tag.prototype.children
+Tag.prototype.$子树 = Tag.prototype.$children
 Tag.prototype.克隆 = Tag.prototype.clone
 Tag.prototype.文本 = Tag.prototype.text
 Tag.prototype.绘制 = Tag.prototype.draw

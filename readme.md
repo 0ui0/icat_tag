@@ -14,6 +14,7 @@ t().inject()
 t().draw()
 t().redraw()
 t().mount()
+t.parent
 ### t()
 创建一个虚拟节点，调用new Tag()
 ### t().to((self)=>{})
@@ -87,7 +88,7 @@ let vdom = null
 t()
   .view((self)=>{
     self.children([
-      comp1()
+      comp1(),
       comp1()
         .to((self)=> vdom = self)
         .inject((self)=>{

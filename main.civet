@@ -7,7 +7,7 @@ import checkType from "icat_checkType"
 Tag := class
   @()
     @initVnode()
-    @render = null
+    @render = ->
     @dom = null
     @initParams = ->
     @parent = null
@@ -47,8 +47,25 @@ Tag := class
     @
   tag(name)
     checkType arguments,["string"],"Tag.tag(name)"
-    @ ||>
-      .vnode.tagName = name
+    @vnode.tagName = name
+    @
+  $tag(name)
+    @inject (self)=>
+      self.tag(name)
+    @
+  $attr(attrObj)
+    @inject (self)=>
+      self.attr attrObj
+    @
+  $style(styleObj)
+    @inject (self)=>
+      self.style styleObj
+    @
+  $children(tagArr)
+    @inject (self)=>
+      self.children tagArr
+    @
+
   setParent(tag)
     checkType arguments,["object"],"Tag.setParent(tag)"
     @parent = tag
@@ -165,8 +182,11 @@ Tag::样式 = Tag::style
 Tag::参数 = Tag::param
 Tag::传递 = Tag::to
 Tag::标签 = Tag::tag 
+Tag::$标签 = Tag::$tag
 Tag::属性 = Tag::attr 
+Tag::$属性 = Tag::$attr
 Tag::子树 = Tag::children
+Tag::$子树 = Tag::$children
 Tag::克隆 = Tag::clone
 Tag::文本 = Tag::text
 Tag::绘制 = Tag::draw

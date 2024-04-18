@@ -4,61 +4,17 @@
 import {t} from "../main"
 main = document.querySelector "#main"
 
-
-
-Box = =>
+Box = ()=>
   t()
-    .view (i)=>
-      i.style
-        margin:"1rem"
-        padding:"1rem"
-        background:"#eee"
-        borderRadius:if i.vnode.params.isRound then "1rem"
-        display:"inline-block"
-        boxShadow:"0 0 1rem rgba(0,0,0,0.5)"
+    .$style({
+      margin:"1rem"
+      background:"#eee"
+      border:"0.1rem solid #ccc"
+    })
 
-num = 0
-arr = [1,2,3,4]
-console.log(
-t()
-  .view (i)=>
-    i.children [
-      Box()
-        .inject (i)=>
-          i.tag "div"
-          .style
-            background:if num % 2 is 0 then "red" else null
-          .children [
-            num+""
-            arr.map (item)=>
-              Box()
-                .inject (i)=>
-                  i.children item+""
-            Box()
-              .inject (i)=>
-                i.attr
-                  onclick: =>
-                    num++
-                    console.log num
-                    if num < 5
-                      arr.push num
-                    else
-                      arr.pop()
-                    i.parent.redraw()
-                  oncreate: (dom)=>
-                    window.dom = dom
-                    console.log 11,dom.parentNode
-                    dom.onmouseover = ()=>
-                      console.log "aaa"
-                .children "button"+num
-                if num%2 is 0
-                  i.attr
-                    "data-hello":num
-                
-          ]
-        .param =>
-          isRound:true
-    ]
+Box()
+  .$children [
+    Box().$children "呜啦啦啦"
+    Box().$children "呜啦啦啦"
+  ]
   .mount main
-)
-
