@@ -15,6 +15,7 @@ let Box = () => {
 Box()
   .$children([
     Box().$children("呜啦啦啦"),
-    Box().$children("呜啦啦啦")
+    Box().$children("呜啦啦啦"),
+    24
   ])
   .mount(main)

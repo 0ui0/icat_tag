@@ -97,8 +97,9 @@ Tag := class
 
 
   child(tag)
-    checkType arguments,[["object","string"]],"Tag.child(tag)"
-
+    checkType arguments,[["object","string","number","null"]],"Tag.child(tag)"
+    unless Tag
+      return
     switch typeof tag
       "string","number"
         @vnode.children.push new Tag().view .text(tag).setParent(@)
@@ -107,12 +108,13 @@ Tag := class
           console.error tag
           throw new Error "tag not instance of Tag"
         @vnode.children.push tag.setParent(@)
+    @
   text(str)
     checkType arguments,["string"],"Tag.text(str)"
     @vnode.children = str
     @
   children(children)
-    checkType arguments,[["array","string"]],"Tag.children()"
+    checkType arguments,[["array","string","number","null"]],"Tag.children()"
     if typeof children is "string" or typeof children is "number"
       @child children
     else

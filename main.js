@@ -117,17 +117,20 @@ const Tag = class {
 
 
   child(tag) {
-    checkType(arguments,[["object","string"]],"Tag.child(tag)")
-
+    checkType(arguments,[["object","string","number","null"]],"Tag.child(tag)")
+    if(!Tag) {
+      return
+    }
     let m;if(m = typeof tag,m === "string" || m === "number") {
-        return this.vnode.children.push(new Tag().view($ => $.text(tag).setParent(this)))}
+        this.vnode.children.push(new Tag().view($ => $.text(tag).setParent(this)))}
 else  {
         if (!(tag instanceof Tag)) {
           console.error(tag)
           throw new Error("tag not instance of Tag")
         }
-        return this.vnode.children.push(tag.setParent(this))
+        this.vnode.children.push(tag.setParent(this))
       }
+    return this
   }
   text(str) {
     checkType(arguments,["string"],"Tag.text(str)")
@@ -135,7 +138,7 @@ else  {
     return this
   }
   children(children) {
-    checkType(arguments,[["array","string"]],"Tag.children()")
+    checkType(arguments,[["array","string","number","null"]],"Tag.children()")
     if (typeof children === "string" || typeof children === "number") {
       this.child(children)
     }
