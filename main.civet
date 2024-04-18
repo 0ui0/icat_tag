@@ -110,7 +110,7 @@ Tag := class
         @vnode.children.push tag.setParent(@)
     @
   text(str)
-    checkType arguments,["string"],"Tag.text(str)"
+    checkType arguments,[["string","number"]],"Tag.text(str)"
     @vnode.children = str
     @
   children(children)
@@ -123,7 +123,7 @@ Tag := class
     @
   draw()
     switch typeof @vnode.children
-      "string"
+      "string","number"
         @dom ?= document.createTextNode ""
         if @dom
           parent = @dom.parentNode
@@ -161,7 +161,7 @@ Tag := class
   redraw()
     @initVnode()
     @render()
-    if typeof @vnode.children is not "string"
+    if typeof (@vnode.children) is not "string" and typeof(@vnode.children) is not "number"
       for child of @vnode.children
         child.redraw()
     @draw()

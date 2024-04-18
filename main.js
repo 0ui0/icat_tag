@@ -133,7 +133,7 @@ else  {
     return this
   }
   text(str) {
-    checkType(arguments,["string"],"Tag.text(str)")
+    checkType(arguments,[["string","number"]],"Tag.text(str)")
     this.vnode.children = str
     return this
   }
@@ -150,7 +150,7 @@ else  {
     return this
   }
   draw() {
-    let m1;if(m1 = typeof this.vnode.children,m1 === "string") {
+    let m1;if(m1 = typeof this.vnode.children,m1 === "string" || m1 === "number") {
         this.dom ??= document.createTextNode("")
         if (this.dom) {
           let parent = this.dom.parentNode
@@ -206,7 +206,7 @@ else  {
   redraw() {
     this.initVnode()
     this.render()
-    if (typeof this.vnode.children !== "string") {
+    if (typeof (this.vnode.children) !== "string" && typeof (this.vnode.children) !== "number") {
       for (const child of this.vnode.children) {
         child.redraw()
       }
