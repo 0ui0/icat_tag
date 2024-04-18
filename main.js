@@ -1,6 +1,8 @@
 //@ts-nocheck
 
 var hasProp = ({}.constructor).hasOwn;
+import checkType from "icat_checkType"
+
 const Tag = class {
   constructor() {
     this.initVnode()
@@ -20,6 +22,7 @@ const Tag = class {
   }
         
   view(fn) {
+    checkType(arguments,["function"],"Tag.view()")
     this.render = function() {
       this.initParams()
       return fn(this)
@@ -27,6 +30,7 @@ const Tag = class {
     return this
   }
   inject(fn) {
+    checkType(arguments,["function"],"Tag.inject()")
     let oldRender = this.render
     this.render = function() {
       oldRender.call(this)
@@ -35,6 +39,7 @@ const Tag = class {
     return this
   }
   param(paramFn) {
+    checkType(arguments,["function"],"Tag.param()")
     this.initParams = function() {
       return this.vnode.params = {
         ...this.vnode.params,
@@ -44,17 +49,21 @@ const Tag = class {
     return this
   }
   to(fn) {
+    checkType(arguments,["function"],"Tag.to()")
     fn(this)
     return this
   }
   tag(name) {
+    checkType(arguments,["string"],"Tag.tag(name)")
     let ref1;return ((ref1 = this).vnode.tagName = name,ref1)
   }
   setParent(tag) {
+    checkType(arguments,["object"],"Tag.setParent(tag)")
     this.parent = tag
     return this
   }
   attr(attrObj) {
+    checkType(arguments,["object"],"Tag.attr(attrObj)")
     if (attrObj.style) {
       throw new Error("please use style replace attr")
     }
@@ -65,6 +74,7 @@ const Tag = class {
     return this
   }
   style(styleObj) {
+    checkType(arguments,["object"],"Tag.style(styleObj)")
     let ref3;return ((ref3 = this).vnode.attrs.style = {
         ...this.vnode.attrs.style,
         ...styleObj
@@ -81,7 +91,9 @@ const Tag = class {
 
 
   child(tag) {
-    let m;if(m = typeof tag,m === "string") {
+    checkType(arguments,[["object","string"]],"Tag.child(tag)")
+
+    let m;if(m = typeof tag,m === "string" || m === "number") {
         return this.vnode.children.push(new Tag().view($ => $.text(tag).setParent(this)))}
 else  {
         if (!(tag instanceof Tag)) {
@@ -92,15 +104,17 @@ else  {
       }
   }
   text(str) {
+    checkType(arguments,["string"],"Tag.text(str)")
     this.vnode.children = str
     return this
   }
   children(children) {
-    if (typeof children === "string") {
+    checkType(arguments,[["array","string"]],"Tag.children()")
+    if (typeof children === "string" || typeof children === "number") {
       this.child(children)
     }
     else {
-      for (const child of children) {
+      for (const child of children.flat()) {
         this.child(child)
       }
     }
@@ -118,10 +132,6 @@ else  {
           }
         }
             
-        if (this.vnode.attrs.oncreate) {
-          this.vnode.attrs.oncreate(this.dom)
-        }
-
         this.dom.data = this.vnode.children}
 else  {
         this.dom ??= document.createElement(this.vnode.tagName)
@@ -134,26 +144,34 @@ else  {
           }
         }
         this.dom.innerHTML = ""
-        if (this.vnode.attrs.oncreate) {
-          this.vnode.attrs.oncreate(this.dom)
-        }
         
         let ref4;for (const key in ref4 = this.vnode.attrs) {
           if (!hasProp(ref4, key)) continue;
           const attr = ref4[key];
           if (key === "style") {
-            for (const name in attr) {
-              if (!hasProp(attr, name)) continue;
-              const value = attr[name];
-              this.dom.style[name] = value
+            if (typeof (attr) === "string") {
+              this.dom.style = attr
+            }
+            else {
+              for (const name in attr) {
+                if (!hasProp(attr, name)) continue;
+                const value = attr[name];
+                this.dom.style[name] = value
+              }
             }
           }
           else {
-            this.dom[key] = attr
+            if (key.match(/^data-/g)) {
+              this.dom.setAttribute(key,attr)
+            }
+            else {
+              this.dom[key] = attr
+            }
           }
         }
         for (const child of this.vnode.children) { this.dom.appendChild(child.dom) }
       }
+
     return this
   }
   redraw() {
@@ -165,9 +183,13 @@ else  {
       }
     }
     this.draw()
+    if (this.vnode.attrs.oncreate) {
+      this.vnode.attrs.oncreate(this.dom)
+    }
     return this
   }
   mount(dom) {
+    checkType(arguments,[["htmldivelement","htmlhtmlelement"]],"Tag.mount()")
     this.redraw()
     dom.innerHTML = ""
     dom.appendChild(this.dom)
@@ -177,6 +199,22 @@ else  {
 
 const t = function() { return new Tag() }
 t.Tag = Tag
+
+Tag.prototype.视图 = Tag.prototype.view
+Tag.prototype.注入 = Tag.prototype.inject
+Tag.prototype.样式 = Tag.prototype.style
+Tag.prototype.参数 = Tag.prototype.param
+Tag.prototype.传递 = Tag.prototype.to
+Tag.prototype.标签 = Tag.prototype.tag 
+Tag.prototype.属性 = Tag.prototype.attr 
+Tag.prototype.子树 = Tag.prototype.children
+Tag.prototype.克隆 = Tag.prototype.clone
+Tag.prototype.文本 = Tag.prototype.text
+Tag.prototype.绘制 = Tag.prototype.draw
+Tag.prototype.重绘 = Tag.prototype.redraw
+Tag.prototype.挂载 = Tag.prototype.mount
+
+
 
 export default t
 export {Tag,t}

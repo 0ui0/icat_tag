@@ -1,5 +1,8 @@
 //@ts-nocheck
 "civet autoLet"
+"civet coffeePrototype"
+
+import checkType from "icat_checkType"
 
 Tag := class
   @()
@@ -18,17 +21,20 @@ Tag := class
         children:[]
         
   view(fn)
+    checkType arguments,["function"],"Tag.view()"
     @render = ->
       @initParams()
       fn(@)
     @
   inject(fn)
+    checkType arguments,["function"],"Tag.inject()"
     oldRender = @render
     @render = ->
       oldRender.call @
       fn(@)
     @
   param(paramFn)
+    checkType arguments,["function"],"Tag.param()"
     @initParams = ->
       @vnode.params = {
         ...@vnode.params
@@ -36,15 +42,19 @@ Tag := class
       }
     @
   to(fn)
+    checkType arguments,["function"],"Tag.to()"
     fn(@)
     @
   tag(name)
+    checkType arguments,["string"],"Tag.tag(name)"
     @ ||>
       .vnode.tagName = name
   setParent(tag)
+    checkType arguments,["object"],"Tag.setParent(tag)"
     @parent = tag
     @
   attr(attrObj)
+    checkType arguments,["object"],"Tag.attr(attrObj)"
     if attrObj.style
       throw new Error "please use style replace attr"
     @ ||>
@@ -54,6 +64,7 @@ Tag := class
       }
     @
   style(styleObj)
+    checkType arguments,["object"],"Tag.style(styleObj)"
     @ ||>
       .vnode.attrs.style = {
         ...@vnode.attrs.style
@@ -69,8 +80,10 @@ Tag := class
 
 
   child(tag)
+    checkType arguments,[["object","string"]],"Tag.child(tag)"
+
     switch typeof tag
-      "string"
+      "string","number"
         @vnode.children.push new Tag().view .text(tag).setParent(@)
       else
         if tag not instanceof Tag
@@ -78,13 +91,15 @@ Tag := class
           throw new Error "tag not instance of Tag"
         @vnode.children.push tag.setParent(@)
   text(str)
+    checkType arguments,["string"],"Tag.text(str)"
     @vnode.children = str
     @
   children(children)
-    if typeof children is "string"
+    checkType arguments,[["array","string"]],"Tag.children()"
+    if typeof children is "string" or typeof children is "number"
       @child children
     else
-      for child of children
+      for child of children.flat()
         @child child
     @
   draw()
@@ -98,9 +113,6 @@ Tag := class
             @dom = document.createTextNode ""
             @dom.parentNode.appendChild @dom
             
-        if @vnode.attrs.oncreate
-          @vnode.attrs.oncreate @dom
-
         @dom.data = @vnode.children
       else
         @dom ?= document.createElement @vnode.tagName
@@ -111,16 +123,21 @@ Tag := class
             @dom = document.createElement @vnode.tagName
             parent.appendChild @dom
         @dom.innerHTML = ""
-        if @vnode.attrs.oncreate
-          @vnode.attrs.oncreate @dom
         
         for own key,attr in @vnode.attrs
           if key is "style"
-            for own name,value in attr
-              @dom.style[name] = value
+            if typeof(attr) is "string"
+              @dom.style = attr
+            else
+              for own name,value in attr
+                @dom.style[name] = value
           else
-            @dom[key] = attr
+            if key.match /^data-/g
+              @dom.setAttribute key,attr
+            else
+              @dom[key] = attr
         @dom.appendChild child.dom for child of @vnode.children
+
     @
   redraw()
     @initVnode()
@@ -129,8 +146,11 @@ Tag := class
       for child of @vnode.children
         child.redraw()
     @draw()
+    if @vnode.attrs.oncreate
+      @vnode.attrs.oncreate @dom
     @
   mount(dom)
+    checkType arguments,[["htmldivelement","htmlhtmlelement"]],"Tag.mount()"
     @redraw()
     dom.innerHTML = ""
     dom.appendChild @dom
@@ -138,6 +158,22 @@ Tag := class
 
 t := -> new Tag()
 t.Tag = Tag
+
+Tag::视图 = Tag::view
+Tag::注入 = Tag::inject
+Tag::样式 = Tag::style
+Tag::参数 = Tag::param
+Tag::传递 = Tag::to
+Tag::标签 = Tag::tag 
+Tag::属性 = Tag::attr 
+Tag::子树 = Tag::children
+Tag::克隆 = Tag::clone
+Tag::文本 = Tag::text
+Tag::绘制 = Tag::draw
+Tag::重绘 = Tag::redraw
+Tag::挂载 = Tag::mount
+
+
 
 export default t
 export {Tag,t}

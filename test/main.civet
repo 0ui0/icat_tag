@@ -4,6 +4,8 @@
 import {t} from "../main"
 main = document.querySelector "#main"
 
+
+
 Box = =>
   t()
     .view (i)=>
@@ -13,8 +15,10 @@ Box = =>
         background:"#eee"
         borderRadius:if i.vnode.params.isRound then "1rem"
         display:"inline-block"
-      .children "我是一个div"
+        boxShadow:"0 0 1rem rgba(0,0,0,0.5)"
 
+num = 0
+arr = [1,2,3,4]
 console.log(
 t()
   .view (i)=>
@@ -22,8 +26,39 @@ t()
       Box()
         .inject (i)=>
           i.tag "div"
+          .style
+            background:if num % 2 is 0 then "red" else null
+          .children [
+            num+""
+            arr.map (item)=>
+              Box()
+                .inject (i)=>
+                  i.children item+""
+            Box()
+              .inject (i)=>
+                i.attr
+                  onclick: =>
+                    num++
+                    console.log num
+                    if num < 5
+                      arr.push num
+                    else
+                      arr.pop()
+                    i.parent.redraw()
+                  oncreate: (dom)=>
+                    window.dom = dom
+                    console.log 11,dom.parentNode
+                    dom.onmouseover = ()=>
+                      console.log "aaa"
+                .children "button"+num
+                if num%2 is 0
+                  i.attr
+                    "data-hello":num
+                
+          ]
         .param =>
           isRound:true
     ]
   .mount main
 )
+
