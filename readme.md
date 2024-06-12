@@ -173,3 +173,5 @@ console.log(tmp);
 
 
 ```
+
+现在允许你使用中文方法，详情见main.js
